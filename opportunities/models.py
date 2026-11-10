@@ -1,5 +1,6 @@
 from django.core.validators import URLValidator
 from django.db import models
+from django.db.models import Q
 
 
 class Opportunity(models.Model):
@@ -44,6 +45,11 @@ class Opportunity(models.Model):
     application_url = models.URLField(blank=True, validators=[URLValidator(schemes=["https", "http"])])
     opportunity_type = models.CharField(max_length=80, blank=True)
     source = models.CharField(max_length=200, blank=True)
+    source_identifier = models.CharField(max_length=200, blank=True)
+    source_url = models.URLField(blank=True, validators=[URLValidator(schemes=["https"])])
+    source_collected_at = models.DateTimeField(null=True, blank=True)
+    source_managed = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
     is_demo = models.BooleanField(default=False, help_text="Clearly identifies demonstration records.")
     is_published = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
@@ -51,6 +57,13 @@ class Opportunity(models.Model):
 
     class Meta:
         ordering = ["application_deadline", "-date_created"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["source", "source_identifier"],
+                condition=~Q(source_identifier=""),
+                name="unique_source_opportunity_identifier",
+            )
+        ]
 
     def __str__(self):
         return self.title

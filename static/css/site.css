@@ -150,6 +150,7 @@ h3 { font-size: 1.16rem; }
 .card-meta { display: flex; flex-wrap: wrap; gap: 7px; }
 .tag { display: inline-flex; align-items: center; padding: 4px 9px; color: #285184; background: #edf3fa; border-radius: 99px; font-size: .76rem; font-weight: 650; }
 .tag-demo { color: #754411; background: #fff3d8; }
+.tag-verified { color: #165c45; background: #e4f4ed; }
 .card-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 14px; color: var(--muted); border-top: 1px solid var(--line); font-size: .8rem; }
 .match-chip { margin-top: 12px; padding: 8px 10px; color: var(--blue-dark); background: var(--blue-soft); border-radius: 7px; font-size: .83rem; }
 .filter-form { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr auto; align-items: end; gap: 12px; padding: 16px; background: white; border: 1px solid var(--line); border-radius: 12px; }

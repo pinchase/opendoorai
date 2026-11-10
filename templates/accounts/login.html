@@ -12,6 +12,8 @@
       {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
       <button class="button button-full" type="submit">Log in</button>
     </form>
+    <p class="form-foot"><a href="{% url 'accounts:password-reset' %}">Forgot your password?</a></p>
+    <p class="form-foot"><a href="{% url 'accounts:resend-verification' %}">Resend a verification email</a></p>
     <p class="form-foot">New to OpenDoors? <a href="{% url 'accounts:register' %}">Create an account</a></p>
   </div>
 </section>

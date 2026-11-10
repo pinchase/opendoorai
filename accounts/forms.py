@@ -1,9 +1,8 @@
+import zipfile
 from django import forms
 from django.contrib.auth import authenticate, password_validation
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
-from django.utils.text import capfirst
-
 from profiles.models import Profile
 
 
@@ -60,6 +59,10 @@ class EmailAuthenticationForm(AuthenticationForm):
         return self.cleaned_data
 
 
+class ResendVerificationForm(forms.Form):
+    email = forms.EmailField(max_length=254)
+
+
 class ProfileForm(forms.ModelForm):
     preferred_categories = forms.MultipleChoiceField(
         label="Preferred opportunity categories",
@@ -96,8 +99,25 @@ class ProfileForm(forms.ModelForm):
         if upload:
             if upload.size > 5 * 1024 * 1024:
                 raise ValidationError("The CV must be 5 MB or smaller.")
-            if upload.name.rsplit(".", 1)[-1].lower() not in {"pdf", "doc", "docx"}:
+            extension = upload.name.rsplit(".", 1)[-1].lower()
+            if extension not in {"pdf", "doc", "docx"}:
                 raise ValidationError("Upload a PDF or Word document.")
+            header = upload.read(8)
+            upload.seek(0)
+            if extension == "pdf" and not header.startswith(b"%PDF-"):
+                raise ValidationError("The uploaded file does not appear to be a PDF.")
+            if extension == "doc" and not header.startswith(bytes.fromhex("D0CF11E0A1B11AE1")):
+                raise ValidationError("The uploaded file does not appear to be a Word document.")
+            if extension == "docx":
+                try:
+                    with zipfile.ZipFile(upload) as archive:
+                        names = set(archive.namelist())
+                except (zipfile.BadZipFile, OSError):
+                    raise ValidationError("The uploaded file does not appear to be a Word document.") from None
+                finally:
+                    upload.seek(0)
+                if not {"[Content_Types].xml", "word/document.xml"}.issubset(names):
+                    raise ValidationError("The uploaded file does not appear to be a Word document.")
         return upload
 
     def clean_graduation_year(self):

@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.db import DatabaseError, connection
+from django.http import JsonResponse
 from django.urls import include, path
 from rest_framework.permissions import AllowAny
 from rest_framework.schemas import get_schema_view
@@ -9,7 +11,20 @@ from matching import api as matching_api
 from opportunities import api as opportunity_api
 from profiles import api as profile_api
 
+
+def health_check(request):
+    try:
+        connection.ensure_connection()
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+    except DatabaseError:
+        return JsonResponse({"status": "unavailable"}, status=503)
+    return JsonResponse({"status": "ok"})
+
+
 urlpatterns = [
+    path("healthz/", health_check, name="health-check"),
     path("admin/", admin.site.urls),
     path("", include("accounts.urls")),
     path("opportunities/", include("opportunities.urls")),

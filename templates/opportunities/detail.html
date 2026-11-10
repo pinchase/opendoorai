@@ -4,9 +4,10 @@
 <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{% url 'opportunities:list' %}">Explore</a><span aria-hidden="true">/</span><span>{{ opportunity.get_category_display }}</span></nav>
 <article class="detail-layout">
   <div class="detail-main">
-    <div class="card-meta"><span class="tag">{{ opportunity.get_category_display }}</span>{% if opportunity.is_demo %}<span class="tag tag-demo">Demonstration data</span>{% endif %}</div>
+    <div class="card-meta"><span class="tag">{{ opportunity.get_category_display }}</span>{% if opportunity.is_demo %}<span class="tag tag-demo">Demonstration data</span>{% elif opportunity.is_verified %}<span class="tag tag-verified">Source verified</span>{% endif %}</div>
     <h1>{{ opportunity.title }}</h1><p class="detail-organization">{{ opportunity.organization }} <span aria-hidden="true">·</span> {{ opportunity.location }}</p>
     {% if opportunity.is_demo %}<p class="notice">This is demonstration data created for the OpenDoors AI demo. It is not a real listing. No live organization, deadline, or application link is represented.</p>{% endif %}
+    {% if opportunity.is_verified and opportunity.source_url %}<p class="help-text">Source: <a href="{{ opportunity.source_url }}" rel="noopener noreferrer" target="_blank">{{ opportunity.source }}</a>{% if opportunity.source_collected_at %} · Last checked {{ opportunity.source_collected_at|date:"M j, Y H:i" }} UTC{% endif %}</p>{% endif %}
     <section class="detail-section"><h2>About this opportunity</h2><p class="preserve-lines">{{ opportunity.description }}</p></section>
     <section class="detail-section"><h2>Eligibility and requirements</h2>{% if opportunity.eligibility_requirements %}<p class="preserve-lines">{{ opportunity.eligibility_requirements }}</p>{% else %}<p>Specific eligibility requirements have not been provided.</p>{% endif %}
       <dl class="requirements-list">
@@ -30,8 +31,9 @@
         {% endif %}
         <form method="post">{% csrf_token %}<button class="button button-secondary" type="submit" name="explain" value="1">Explain this opportunity to me</button></form>
         {% if ai_enabled %}<p class="help-text">This site is configured for AI-assisted explanations. Relevant profile details are sent to its configured AI provider; your CV is not sent.</p>{% endif %}
-        {% if explanation %}<div class="explanation-result" aria-live="polite"><p class="eyebrow">{% if explanation.source == "rule_based" %}Rule-based explanation{% else %}AI-assisted explanation{% endif %}</p>
+        {% if explanation %}<div class="explanation-result" aria-live="polite"><p class="eyebrow">{% if explanation.source == "rule_based" %}Rule-based explanation{% elif explanation.source == "rule_based_fallback" %}Rule-based explanation (AI provider unavailable){% else %}AI-assisted explanation{% endif %}</p>
           <p>{{ explanation.summary }}</p>{% if explanation.ai_explanation %}<p class="preserve-lines">{{ explanation.ai_explanation }}</p>{% endif %}
+          {% if explanation.provider_warning %}<p class="notice" role="status">{{ explanation.provider_warning }} The explanation below is rule-based, not AI-generated.</p>{% endif %}
           <p><strong>Requirements:</strong> {{ explanation.requirements_summary }}</p>
           {% if explanation.application_steps %}<h3>Next steps</h3><ul>{% for step in explanation.application_steps %}<li>{{ step }}</li>{% endfor %}</ul>{% endif %}
           <p class="help-text">Use the opportunity provider’s current requirements as the source of truth.</p>

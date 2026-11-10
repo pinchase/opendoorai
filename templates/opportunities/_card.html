@@ -1,5 +1,5 @@
 <article class="opportunity-card">
-  <div class="card-meta"><span class="tag">{{ opportunity.get_category_display }}</span>{% if opportunity.is_demo %}<span class="tag tag-demo">Demonstration</span>{% endif %}</div>
+  <div class="card-meta"><span class="tag">{{ opportunity.get_category_display }}</span>{% if opportunity.is_demo %}<span class="tag tag-demo">Demonstration</span>{% elif opportunity.is_verified %}<span class="tag tag-verified">Source verified</span>{% endif %}</div>
   <h3><a href="{% url 'opportunities:detail' opportunity.pk %}">{{ opportunity.title }}</a></h3>
   <p class="organization">{{ opportunity.organization }}</p>
   <p class="card-description">{{ opportunity.description|truncatewords:24 }}</p>

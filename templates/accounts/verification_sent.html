@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Check your email — OpenDoors AI{% endblock %}
+{% block content %}
+<section class="form-layout form-layout-single">
+  <div class="form-card">
+    <p class="eyebrow">One more step</p>
+    <h1>Check your email</h1>
+    <p>If email verification is enabled and an unverified account matches that address, we’ll send a time-limited link. In local development, check the terminal for the message.</p>
+    <p><a class="button button-secondary" href="{% url 'accounts:resend-verification' %}">Resend verification email</a></p>
+    <p class="form-foot"><a href="{% url 'accounts:login' %}">Return to log in</a></p>
+  </div>
+</section>
+{% endblock %}

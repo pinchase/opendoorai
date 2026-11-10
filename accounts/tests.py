@@ -90,7 +90,16 @@ class AuthenticationAndProfileTests(TestCase):
             email="member@example.test",
             password="SecurePass!5840",
         )
-        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+        with TemporaryDirectory() as media_root, override_settings(
+            MEDIA_ROOT=media_root,
+            STORAGES={
+                "default": {
+                    "BACKEND": "django.core.files.storage.FileSystemStorage",
+                    "OPTIONS": {"location": media_root, "base_url": None},
+                },
+                "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+            },
+        ):
             profile = Profile.objects.create(
                 user=user,
                 cv=SimpleUploadedFile("resume.pdf", b"%PDF-1.4 demo"),
@@ -98,15 +107,18 @@ class AuthenticationAndProfileTests(TestCase):
             self.client.force_login(user)
             response = self.client.get(reverse("accounts:cv-download"))
             self.assertEqual(response.status_code, 200)
-            self.assertTrue(response["Content-Disposition"].startswith('attachment; filename="resume'))
+            self.assertRegex(response["Content-Disposition"], r'attachment; filename="[0-9a-f]{32}\.pdf"')
+            self.assertEqual(response["Cache-Control"], "private, no-store")
             response.close()
-            profile.cv.delete(save=False)
-            self.client.force_login(get_user_model().objects.create_user(
+            other = get_user_model().objects.create_user(
                 username="other@example.test",
                 email="other@example.test",
                 password="SecurePass!5840",
-            ))
+            )
+            self.client.force_login(other)
             self.assertEqual(self.client.get(reverse("accounts:cv-download")).status_code, 404)
+            self.client.force_login(user)
+            profile.cv.delete(save=False)
 
     def test_profile_rejects_unsupported_cv_extension(self):
         user = get_user_model().objects.create_user(
@@ -126,3 +138,42 @@ class AuthenticationAndProfileTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Upload a PDF or Word document.")
+
+    def test_profile_rejects_mismatched_cv_content(self):
+        user = get_user_model().objects.create_user(
+            username="member@example.test",
+            email="member@example.test",
+            password="SecurePass!5840",
+        )
+        Profile.objects.create(user=user)
+        self.client.force_login(user)
+        response = self.client.post(
+            reverse("accounts:profile"),
+            {
+                "full_name": "Member",
+                "preferred_categories": [],
+                "cv": SimpleUploadedFile("resume.pdf", b"not a PDF"),
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "does not appear to be a PDF.")
+
+    def test_profile_can_remove_uploaded_cv(self):
+        user = get_user_model().objects.create_user(
+            username="member@example.test",
+            email="member@example.test",
+            password="SecurePass!5840",
+        )
+        Profile.objects.create(
+            user=user,
+            cv=SimpleUploadedFile("resume.pdf", b"%PDF-1.4 demo"),
+        )
+        self.client.force_login(user)
+        response = self.client.post(reverse("accounts:profile"), {
+            "full_name": "Member",
+            "preferred_categories": [],
+            "remove_cv": "on",
+        })
+        self.assertRedirects(response, reverse("accounts:profile"))
+        user.profile.refresh_from_db()
+        self.assertFalse(user.profile.cv)

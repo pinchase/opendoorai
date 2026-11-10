@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Email verification — OpenDoors AI{% endblock %}
+{% block content %}
+<section class="form-layout form-layout-single">
+  <div class="form-card">
+    {% if verified %}
+      <p class="eyebrow">Email verified</p><h1>Your account is ready.</h1>
+      <p>Your email address is confirmed. You can now sign in.</p>
+      <a class="button" href="{% url 'accounts:login' %}">Log in</a>
+    {% else %}
+      <p class="eyebrow">Verification link</p><h1>This link is invalid or expired.</h1>
+      <p>Request a new link to continue.</p>
+      <a class="button" href="{% url 'accounts:resend-verification' %}">Request another link</a>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,3 @@
+-r requirements.txt
+playwright>=1.55,<2.0
+axe-playwright-python>=0.1.8,<0.2

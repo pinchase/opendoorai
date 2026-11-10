@@ -1,7 +1,16 @@
+from pathlib import PurePosixPath
+from uuid import uuid4
+
 from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils import timezone
+
+
+def profile_cv_upload_to(instance, filename):
+    safe_name = filename.replace("\\", "/").rsplit("/", 1)[-1]
+    extension = PurePosixPath(safe_name).suffix.lower()
+    return f"cvs/{instance.user_id}/{uuid4().hex}{extension}"
 
 
 class Profile(models.Model):
@@ -41,7 +50,7 @@ class Profile(models.Model):
     preferred_location = models.CharField(max_length=120, blank=True)
     experience_level = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES, blank=True)
     cv = models.FileField(
-        upload_to="cvs/",
+        upload_to=profile_cv_upload_to,
         blank=True,
         validators=[FileExtensionValidator(["pdf", "doc", "docx"])],
     )

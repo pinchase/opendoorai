@@ -9,9 +9,10 @@ services:
     name: opendoors-ai
     runtime: python
     plan: starter
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --no-input
+    preDeployCommand: python manage.py migrate --noinput && python manage.py createcachetable
     startCommand: gunicorn config.wsgi:application
-    healthCheckPath: /
+    healthCheckPath: /healthz/
     disk:
       name: opendoors-ai-media
       mountPath: /opt/render/project/src/media
@@ -29,5 +30,15 @@ services:
         value: "false"
       - key: ALLOWED_HOSTS
         value: opendoors-ai.onrender.com
+      - key: CACHE_BACKEND
+        value: django.core.cache.backends.db.DatabaseCache
+      - key: CACHE_TABLE
+        value: django_cache
+      - key: AI_ENABLED
+        value: "false"
+      - key: EMAIL_ENABLED
+        value: "false"
+      - key: DEFAULT_FROM_EMAIL
+        value: OpenDoors AI <no-reply@opendoors-ai.onrender.com>
       - key: SECURE_SSL_REDIRECT
         value: "true"

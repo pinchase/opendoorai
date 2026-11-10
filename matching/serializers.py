@@ -27,7 +27,7 @@ class OpportunitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Opportunity
-        fields = "__all__"
+        exclude = ("source_managed",)
         read_only_fields = ("date_created", "date_updated", "is_demo")
 
 
