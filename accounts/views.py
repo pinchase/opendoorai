@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.db import IntegrityError, transaction
+from django.http import FileResponse, Http404
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -82,6 +83,19 @@ def profile_view(request):
         messages.success(request, "Your profile has been updated.")
         return redirect("accounts:profile")
     return render(request, "accounts/profile.html", {"form": form, "profile": profile})
+
+
+@login_required
+def download_cv(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    if not profile.cv:
+        raise Http404("No CV has been uploaded.")
+    return FileResponse(
+        profile.cv.open("rb"),
+        as_attachment=True,
+        filename=profile.cv.name.rsplit("/", 1)[-1],
+        content_type="application/octet-stream",
+    )
 
 
 @login_required

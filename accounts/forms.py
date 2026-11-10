@@ -88,7 +88,7 @@ class ProfileForm(forms.ModelForm):
             "skills": forms.Textarea(attrs={"rows": 3, "placeholder": "Python, research, communication"}),
             "interests": forms.Textarea(attrs={"rows": 3}),
             "career_goals": forms.Textarea(attrs={"rows": 3}),
-            "cv": forms.ClearableFileInput(attrs={"accept": ".pdf,.doc,.docx"}),
+            "cv": forms.FileInput(attrs={"accept": ".pdf,.doc,.docx"}),
         }
 
     def clean_cv(self):

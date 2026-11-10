@@ -94,6 +94,8 @@ Open `http://127.0.0.1:8000/`. Admin is at `/admin/`; all seeded opportunities a
 
 When AI is disabled, explanations are explicitly labeled **Rule-based explanation**. When enabled with valid provider settings, the UI labels the supplementary result **AI-assisted explanation**. Provider failure is reported rather than silently presented as AI output. The opportunity requirements remain the authority.
 
+When AI is enabled, the configured provider receives the profile fields used for explanation (education, field of study, skills, experience, location preference, and interests) together with the opportunity description and requirements. CV files are never sent. Review the provider's data-retention terms before enabling this integration.
+
 ## Database and demo data
 
 Migrations live in each model-owning app's `migrations/` folder. `seed_demo` is idempotent and creates six synthetic records. It does not create live deadlines, organizations, or application URLs.
@@ -141,7 +143,7 @@ Application statuses: `interested`, `preparing`, `applied`, `interview`, `accept
 
 ## Deployment (Render)
 
-The included `render.yaml` defines a Django web service and PostgreSQL database. Review its region/plan choices before use. Configure the generated `SECRET_KEY`, set `DEBUG=false`, and verify `ALLOWED_HOSTS`/CSRF origins for your service and custom domain. Render runs migrations during the build and collects static assets; review logs after deployment. Create an admin user through a one-off shell or the Render shell:
+The included `render.yaml` defines a Django web service, PostgreSQL database, and persistent disk for private uploaded CVs. The disk is service-local and intended for a single web instance; configure backups and private object storage before scaling. Review its region/plan choices before use. Configure the generated `SECRET_KEY`, set `DEBUG=false`, and verify `ALLOWED_HOSTS`/CSRF origins for your service and custom domain. Render runs migrations during the build and collects static assets; review logs after deployment. Create an admin user through a one-off shell or the Render shell:
 
 ```sh
 python manage.py createsuperuser

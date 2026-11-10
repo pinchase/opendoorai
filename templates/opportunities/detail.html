@@ -29,6 +29,7 @@
           {% if match.eligibility_concerns %}<h3>Eligibility concerns</h3><ul>{% for item in match.eligibility_concerns %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
         {% endif %}
         <form method="post">{% csrf_token %}<button class="button button-secondary" type="submit" name="explain" value="1">Explain this opportunity to me</button></form>
+        {% if ai_enabled %}<p class="help-text">This site is configured for AI-assisted explanations. Relevant profile details are sent to its configured AI provider; your CV is not sent.</p>{% endif %}
         {% if explanation %}<div class="explanation-result" aria-live="polite"><p class="eyebrow">{% if explanation.source == "rule_based" %}Rule-based explanation{% else %}AI-assisted explanation{% endif %}</p>
           <p>{{ explanation.summary }}</p>{% if explanation.ai_explanation %}<p class="preserve-lines">{{ explanation.ai_explanation }}</p>{% endif %}
           <p><strong>Requirements:</strong> {{ explanation.requirements_summary }}</p>

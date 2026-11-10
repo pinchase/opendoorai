@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import include, path
+from rest_framework.permissions import AllowAny
 from rest_framework.schemas import get_schema_view
 
 from accounts import views as account_views
@@ -30,5 +31,13 @@ urlpatterns = [
     path("api/saved-opportunities/<int:pk>/", application_views.SavedOpportunityDetailAPIView.as_view(), name="api-saved-detail"),
     path("api/applications/", application_views.ApplicationAPIView.as_view(), name="api-applications"),
     path("api/applications/<int:pk>/", application_views.ApplicationDetailAPIView.as_view(), name="api-application-detail"),
-    path("api/schema/", get_schema_view(title="OpenDoors AI API", version="1.0.0"), name="api-schema"),
+    path(
+        "api/schema/",
+        get_schema_view(
+            title="OpenDoors AI API",
+            version="1.0.0",
+            permission_classes=[AllowAny],
+        ),
+        name="api-schema",
+    ),
 ]

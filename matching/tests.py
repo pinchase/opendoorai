@@ -108,3 +108,19 @@ class MatchingTests(TestCase):
         self.assertEqual(explanation["source"], "rule_based")
         self.assertIn("not a guarantee", explanation["summary"])
         self.assertNotIn("ai_explanation", explanation)
+
+    def test_explanation_api_validates_input_and_returns_rule_based_result(self):
+        self.client.force_login(self.user)
+        invalid = self.client.post(
+            "/api/matches/explanations/",
+            {"opportunity_id": "not-an-id"},
+            content_type="application/json",
+        )
+        self.assertEqual(invalid.status_code, 400)
+        response = self.client.post(
+            "/api/matches/explanations/",
+            {"opportunity_id": self.opportunity.pk},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["source"], "rule_based")

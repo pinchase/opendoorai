@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
 from django.urls import reverse
+from tempfile import TemporaryDirectory
 
 from profiles.models import Profile
 
@@ -81,3 +83,46 @@ class AuthenticationAndProfileTests(TestCase):
         self.assertEqual(response.status_code, 200)
         user.profile.refresh_from_db()
         self.assertEqual(user.profile.full_name, "Updated")
+
+    def test_cv_download_is_private_and_file_validation_rejects_bad_extensions(self):
+        user = get_user_model().objects.create_user(
+            username="member@example.test",
+            email="member@example.test",
+            password="SecurePass!5840",
+        )
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            profile = Profile.objects.create(
+                user=user,
+                cv=SimpleUploadedFile("resume.pdf", b"%PDF-1.4 demo"),
+            )
+            self.client.force_login(user)
+            response = self.client.get(reverse("accounts:cv-download"))
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response["Content-Disposition"].startswith('attachment; filename="resume'))
+            response.close()
+            profile.cv.delete(save=False)
+            self.client.force_login(get_user_model().objects.create_user(
+                username="other@example.test",
+                email="other@example.test",
+                password="SecurePass!5840",
+            ))
+            self.assertEqual(self.client.get(reverse("accounts:cv-download")).status_code, 404)
+
+    def test_profile_rejects_unsupported_cv_extension(self):
+        user = get_user_model().objects.create_user(
+            username="member@example.test",
+            email="member@example.test",
+            password="SecurePass!5840",
+        )
+        Profile.objects.create(user=user)
+        self.client.force_login(user)
+        response = self.client.post(
+            reverse("accounts:profile"),
+            {
+                "full_name": "Member",
+                "preferred_categories": [],
+                "cv": SimpleUploadedFile("resume.exe", b"no executable upload"),
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Upload a PDF or Word document.")

@@ -53,6 +53,10 @@ class OpportunityDiscoveryTests(TestCase):
         self.assertEqual(response.json()["count"], 1)
         self.assertEqual(response.json()["results"][0]["id"], self.python.pk)
 
+    def test_api_schema_is_available(self):
+        response = self.client.get("/api/schema/")
+        self.assertEqual(response.status_code, 200)
+
     def test_detail_and_unpublished_protection(self):
         self.assertEqual(self.client.get(reverse("opportunities:detail", args=[self.python.pk])).status_code, 200)
         hidden = Opportunity.objects.get(title="Hidden Internship")
