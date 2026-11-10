@@ -153,8 +153,25 @@ python manage.py seed_demo
 For other hosts, install requirements, set the environment above, run `python manage.py migrate` and `collectstatic --no-input`, then serve `config.wsgi:application` with Gunicorn behind HTTPS. Configure private media storage and backups before accepting real CV uploads.
 
 ## Screenshots
+### Dashboard
 
-No screenshots are included yet. Add reviewed screenshots here when the app is running.
+![OpenDoors AI dashboard](docs/screenshots/dashboard.png)
+
+### Explore opportunities
+
+![OpenDoors AI opportunity discovery page](docs/screenshots/oppprotunies.png)
+
+### Your matches
+
+![OpenDoors AI personalized matches page](docs/screenshots/matches.png)
+
+### Your applications
+
+![OpenDoors AI application tracker](docs/screenshots/applications.png)
+
+### Your saved applications
+
+![OpenDoors AI saved opportunities](docs/screenshots/saved.png)
 
 ## Future improvements
 
