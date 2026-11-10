@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Create your account — OpenDoors AI{% endblock %}
+{% block content %}
+<section class="form-layout">
+  <div class="form-aside"><p class="eyebrow">A better place to begin</p><h1>Make opportunities easier to find.</h1><p>Create a profile to get personalized, explainable matches and keep your next steps in one place.</p><p>Your information is private to your account. You decide what to share.</p></div>
+  <div class="form-card"><h2>Create your account</h2><p class="muted">It only takes a moment to get started.</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+      {% for field in form %}
+        <div class="form-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<p class="help-text">{{ field.help_text }}</p>{% endif %}{% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</div>
+      {% endfor %}
+      <button class="button button-full" type="submit">Create account</button>
+    </form>
+    <p class="form-foot">Already have an account? <a href="{% url 'accounts:login' %}">Log in</a></p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Settings — OpenDoors AI{% endblock %}
+{% block content %}
+<div class="page-heading"><p class="eyebrow">Account</p><h1>Settings</h1><p>Manage your profile information and account access.</p></div>
+<div class="content-narrow">
+  <section class="panel settings-row"><div><h2>Profile and preferences</h2><p class="muted">Update your education, skills, location, and interests.</p></div><a class="button button-secondary" href="{% url 'accounts:profile' %}">Edit profile</a></section>
+  <section class="panel settings-row"><div><h2>Account email</h2><p class="muted">{{ user.email }}</p></div></section>
+  <section class="panel settings-row"><div><h2>Sign out</h2><p class="muted">You can sign back in any time.</p></div><form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="button button-secondary" type="submit">Log out</button></form></section>
+</div>
+{% endblock %}

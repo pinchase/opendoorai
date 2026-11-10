@@ -1,0 +1,61 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Find opportunities that fit your goals with OpenDoors AI.">
+  <title>{% block title %}OpenDoors AI{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="{% url 'accounts:home' %}" aria-label="OpenDoors AI home">
+        <span class="brand-mark" aria-hidden="true">O</span>
+        <span>OpenDoors <span class="brand-light">AI</span></span>
+      </a>
+      <nav class="primary-nav" aria-label="Main navigation">
+        <a href="{% url 'opportunities:list' %}">Explore</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'accounts:dashboard' %}">Dashboard</a>
+          <a href="{% url 'matching:list' %}">Your matches</a>
+          <a href="{% url 'saved' %}">Saved</a>
+          <a href="{% url 'applications' %}">Applications</a>
+          <details class="account-menu">
+            <summary>{{ user.email|default:user.username }}</summary>
+            <div class="menu-panel">
+              <a href="{% url 'accounts:profile' %}">Your profile</a>
+              <a href="{% url 'accounts:settings' %}">Settings</a>
+              <form method="post" action="{% url 'accounts:logout' %}">
+                {% csrf_token %}
+                <button class="menu-action" type="submit">Log out</button>
+              </form>
+            </div>
+          </details>
+        {% else %}
+          <a href="{% url 'accounts:login' %}">Log in</a>
+          <a class="button button-small" href="{% url 'accounts:register' %}">Get started</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+  <main id="main-content" class="container main-content" tabindex="-1">
+    {% if messages %}
+      <div class="messages" role="status" aria-live="polite">
+        {% for message in messages %}
+          <p class="message message-{{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div><strong>OpenDoors AI</strong><p>Breaking barriers. Unlocking opportunities.</p></div>
+      <p>Designed for opportunity, built with access in mind.</p>
+    </div>
+  </footer>
+</body>
+</html>

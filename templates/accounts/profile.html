@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Your profile — OpenDoors AI{% endblock %}
+{% block content %}
+<div class="page-heading"><p class="eyebrow">Your information</p><h1>Your profile</h1><p>Share what you’re comfortable sharing. Your profile helps us explain how opportunities may fit.</p></div>
+<div class="content-narrow form-card">
+  <div class="progress-label"><span>Profile completion</span><strong>{{ profile.completion_percent }}%</strong></div>
+  <div class="progress-track" role="progressbar" aria-label="Profile completion" aria-valuenow="{{ profile.completion_percent }}" aria-valuemin="0" aria-valuemax="100"><span style="width: {{ profile.completion_percent }}%"></span></div>
+  <p class="help-text">Missing details are treated as unknown, not as a mismatch.</p>
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+    {% for field in form %}
+      <div class="form-field">
+        {% if field.name == "preferred_categories" %}<fieldset class="choice-field"><legend>{{ field.label }}</legend>{{ field }}</fieldset>
+        {% else %}<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% endif %}
+        {% if field.help_text %}<p class="help-text">{{ field.help_text }}</p>{% endif %}
+        {% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+      </div>
+    {% endfor %}
+    <div class="button-row"><button class="button" type="submit">Save profile</button><a class="button button-secondary" href="{% url 'accounts:dashboard' %}">Cancel</a></div>
+  </form>
+</div>
+{% endblock %}

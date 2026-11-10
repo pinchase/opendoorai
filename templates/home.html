@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}OpenDoors AI — Find your next opportunity{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Opportunity, made easier to find</p>
+    <h1>Find the door that’s right for <span class="accent-text">you.</span></h1>
+    <p class="hero-lede">Discover scholarships, internships, training, and early-career opportunities matched to your goals—not just your search terms.</p>
+    <div class="button-row">
+      <a class="button" href="{% url 'accounts:register' %}">Create your free profile</a>
+      <a class="button button-secondary" href="{% url 'opportunities:list' %}">Explore opportunities</a>
+    </div>
+    <p class="trust-note">Free to explore · Your profile stays yours · No automated applications</p>
+  </div>
+  <aside class="hero-card" aria-label="How personalized matching works">
+    <div class="hero-card-top"><span class="status-dot"></span> A clearer path forward</div>
+    <div class="match-illustration">
+      <div class="illustration-icon" aria-hidden="true">✦</div>
+      <p class="eyebrow">Your next step</p>
+      <h2>Built around your story</h2>
+      <p>Skills, interests, and goals come together to make the search feel more personal.</p>
+      <div class="illustration-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+    </div>
+    <div class="hero-card-foot"><span>Clear reasons</span><span>Real choice</span><span>More access</span></div>
+  </aside>
+</section>
+
+<section class="section-block" aria-labelledby="problem-heading">
+  <div class="section-heading">
+    <p class="eyebrow">A search that starts with you</p>
+    <h2 id="problem-heading">Opportunity is out there. Finding it shouldn’t be another barrier.</h2>
+    <p>Too many options, scattered information, and unclear requirements can make the next step hard to see. OpenDoors brings opportunities together and helps you understand where to start.</p>
+  </div>
+  <div class="feature-grid">
+    <article class="feature-card"><span class="feature-icon" aria-hidden="true">01</span><h3>Tell us what matters</h3><p>Build a profile with your education, skills, interests, and goals. Share only what you choose.</p></article>
+    <article class="feature-card"><span class="feature-icon" aria-hidden="true">02</span><h3>See a clearer fit</h3><p>Explore a transparent match score with the reasons, unknowns, and eligibility questions behind it.</p></article>
+    <article class="feature-card"><span class="feature-icon" aria-hidden="true">03</span><h3>Take the next step</h3><p>Save opportunities, understand requirements, and track your own application progress.</p></article>
+  </div>
+</section>
+
+<section class="accessibility-band">
+  <div><p class="eyebrow">Access is part of the product</p><h2>Opportunity information should work for everyone.</h2></div>
+  <p>We use clear language, keyboard-friendly controls, readable layouts, and explanations that distinguish a possible match from confirmed eligibility.</p>
+</section>
+
+{% if recent_opportunities %}
+<section class="section-block">
+  <div class="section-title-row"><div><p class="eyebrow">Recently added</p><h2>Explore opportunities</h2></div><a class="text-link" href="{% url 'opportunities:list' %}">See all opportunities <span aria-hidden="true">→</span></a></div>
+  <div class="card-grid">
+    {% for opportunity in recent_opportunities %}
+      {% include "opportunities/_card.html" with opportunity=opportunity %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+<section class="cta-band"><div><p class="eyebrow">Your next chapter starts here</p><h2>Make room for what’s possible.</h2></div><a class="button button-light" href="{% url 'accounts:register' %}">Get started</a></section>
+{% endblock %}

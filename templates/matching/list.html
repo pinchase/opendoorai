@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Your matches — OpenDoors AI{% endblock %}
+{% block content %}
+<div class="page-heading"><p class="eyebrow">Based on what you’ve shared</p><h1>Your opportunity matches</h1><p>Each score is a comparison—not a promise of eligibility. Missing information is shown as unknown.</p></div>
+{% if results %}<div class="match-list">{% for result in results %}
+  <article class="match-result panel">
+    <div class="match-score-block"><span class="score-number">{{ result.score }}%</span><span>{{ result.level|title }} match</span><span class="muted">Not an eligibility decision</span></div>
+    <div class="match-content"><div class="card-meta"><span class="tag">{{ result.opportunity.get_category_display }}</span>{% if result.opportunity.is_demo %}<span class="tag tag-demo">Demonstration</span>{% endif %}</div>
+      <h2><a href="{% url 'opportunities:detail' result.opportunity.pk %}">{{ result.opportunity.title }}</a></h2><p class="organization">{{ result.opportunity.organization }} · {{ result.opportunity.location }}</p>
+      <p>{{ result.opportunity.description|truncatewords:28 }}</p><p><strong>Eligibility:</strong> {% if result.eligibility_status == "not_eligible" %}Potential mandatory requirement concern{% else %}Review requirements{% endif %}</p>
+      {% if result.reasons %}<details><summary>Why this match</summary><ul>{% for reason in result.reasons %}<li>{{ reason }}</li>{% endfor %}</ul></details>{% endif %}
+      {% if result.missing_information %}<details><summary>Information still needed</summary><ul>{% for item in result.missing_information %}<li>{{ item }}</li>{% endfor %}</ul></details>{% endif %}
+      {% if result.eligibility_concerns %}<details><summary>Eligibility concerns</summary><ul>{% for item in result.eligibility_concerns %}<li>{{ item }}</li>{% endfor %}</ul></details>{% endif %}
+      <a class="text-link" href="{% url 'opportunities:detail' result.opportunity.pk %}">View opportunity and next steps <span aria-hidden="true">→</span></a>
+    </div>
+  </article>
+{% endfor %}</div>{% else %}<div class="empty-state"><h2>No opportunities to match yet</h2><p>Once opportunities are published, your personalized matches will show up here.</p><a class="button" href="{% url 'accounts:profile' %}">Complete your profile</a></div>{% endif %}
+{% endblock %}

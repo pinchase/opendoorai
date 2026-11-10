@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Saved opportunities — OpenDoors AI{% endblock %}
+{% block content %}
+<div class="page-heading"><p class="eyebrow">Your shortlist</p><h1>Saved opportunities</h1><p>Keep possibilities close while you decide what comes next.</p></div>
+{% if items %}<div class="card-grid">{% for item in items %}
+  <article class="opportunity-card"><div class="card-meta"><span class="tag">{{ item.opportunity.get_category_display }}</span>{% if item.opportunity.is_demo %}<span class="tag tag-demo">Demonstration</span>{% endif %}</div><h2><a href="{% url 'opportunities:detail' item.opportunity.pk %}">{{ item.opportunity.title }}</a></h2><p class="organization">{{ item.opportunity.organization }}</p><p>{{ item.opportunity.description|truncatewords:22 }}</p>
+  <form method="post" action="{% url 'opportunities:toggle-saved' item.opportunity.pk %}">{% csrf_token %}<input type="hidden" name="next" value="saved"><button class="button button-secondary" type="submit">Remove from saved</button></form></article>
+{% endfor %}</div>{% else %}<div class="empty-state"><h2>Your shortlist is ready when you are</h2><p>Save opportunities you want to explore later.</p><a class="button" href="{% url 'opportunities:list' %}">Explore opportunities</a></div>{% endif %}
+{% endblock %}

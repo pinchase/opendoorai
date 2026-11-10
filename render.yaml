@@ -1,0 +1,29 @@
+databases:
+  - name: opendoors-ai-db
+    plan: basic-256mb
+    databaseName: opendoors_ai
+    user: opendoors_ai
+
+services:
+  - type: web
+    name: opendoors-ai
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate
+    startCommand: gunicorn config.wsgi:application
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DATABASE_URL
+        fromDatabase:
+          name: opendoors-ai-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "false"
+      - key: ALLOWED_HOSTS
+        value: opendoors-ai.onrender.com
+      - key: SECURE_SSL_REDIRECT
+        value: "true"

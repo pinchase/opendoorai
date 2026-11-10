@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Application tracker — OpenDoors AI{% endblock %}
+{% block content %}
+<div class="page-heading"><p class="eyebrow">Your progress, your pace</p><h1>Application tracker</h1><p>Keep track of your next steps. OpenDoors never submits applications for you.</p></div>
+{% if items %}<div class="tracker-list">{% for item in items %}
+  <article class="tracker-item panel"><div class="tracker-main"><div class="card-meta"><span class="tag">{{ item.opportunity.get_category_display }}</span>{% if item.opportunity.is_demo %}<span class="tag tag-demo">Demonstration</span>{% endif %}</div><h2><a href="{% url 'opportunities:detail' item.opportunity.pk %}">{{ item.opportunity.title }}</a></h2><p class="organization">{{ item.opportunity.organization }}</p><p class="muted">Updated {{ item.updated_at|date:"M j, Y" }}{% if item.opportunity.application_deadline %} · Deadline {{ item.opportunity.application_deadline|date:"M j, Y" }}{% endif %}</p></div>
+  <form method="post" action="{% url 'application-status' item.pk %}" class="status-form">{% csrf_token %}<label for="status-{{ item.pk }}">Application status</label><select id="status-{{ item.pk }}" name="status">{% for value,label in statuses %}<option value="{{ value }}" {% if item.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select><button class="button button-secondary" type="submit">Update status</button></form></article>
+{% endfor %}</div>{% else %}<div class="empty-state"><h2>Your tracker starts with one step</h2><p>Add an opportunity to keep your application progress organized.</p><a class="button" href="{% url 'opportunities:list' %}">Explore opportunities</a></div>{% endif %}
+{% endblock %}

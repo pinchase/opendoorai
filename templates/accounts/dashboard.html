@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — OpenDoors AI{% endblock %}
+{% block content %}
+<section class="dashboard-welcome">
+  <div><p class="eyebrow">Your opportunity space</p><h1>Welcome{% if profile.full_name %}, {{ profile.full_name }}{% endif %}</h1><p>Small steps can open up new possibilities. Here’s where you are today.</p></div>
+  <a class="button" href="{% url 'opportunities:list' %}">Explore opportunities</a>
+</section>
+<section class="dashboard-grid">
+  <article class="panel profile-progress">
+    <div class="panel-heading"><div><p class="eyebrow">Your profile</p><h2>Help us personalize</h2></div><span class="big-number">{{ profile.completion_percent }}%</span></div>
+    <div class="progress-track" role="progressbar" aria-label="Profile completion" aria-valuenow="{{ profile.completion_percent }}" aria-valuemin="0" aria-valuemax="100"><span style="width: {{ profile.completion_percent }}%"></span></div>
+    <p class="muted">A fuller profile gives you more useful match explanations. Unknown details are never treated as a mismatch.</p><a class="text-link" href="{% url 'accounts:profile' %}">Update your profile <span aria-hidden="true">→</span></a>
+  </article>
+  <article class="panel summary-panel"><p class="eyebrow">Your applications</p><span class="big-number">{{ applications|length }}</span><p class="muted">opportunities in your tracker</p><a class="text-link" href="{% url 'applications' %}">View tracker <span aria-hidden="true">→</span></a></article>
+  <article class="panel summary-panel"><p class="eyebrow">Saved for later</p><span class="big-number">{{ saved_count }}</span><p class="muted">saved opportunities</p><a class="text-link" href="{% url 'saved' %}">View saved <span aria-hidden="true">→</span></a></article>
+</section>
+
+<section class="section-block">
+  <div class="section-title-row"><div><p class="eyebrow">Picked for your profile</p><h2>Recommended opportunities</h2></div><a class="text-link" href="{% url 'matching:list' %}">See all matches <span aria-hidden="true">→</span></a></div>
+  {% if recommended %}<div class="card-grid">{% for result in recommended %}{% include "opportunities/_card.html" with opportunity=result.opportunity match_score=result.score %}{% endfor %}</div>{% else %}<div class="empty-state"><h3>No opportunities yet</h3><p>Published opportunities will appear here as they become available.</p></div>{% endif %}
+</section>
+
+<section class="dashboard-lower">
+  <div class="panel"><div class="section-title-row"><div><p class="eyebrow">Your shortlist</p><h2>Saved opportunities</h2></div><a class="text-link" href="{% url 'saved' %}">See saved</a></div>
+    {% if saved_opportunities %}<ul class="compact-list">{% for item in saved_opportunities %}<li><div><a class="list-title" href="{% url 'opportunities:detail' item.opportunity_id %}">{{ item.opportunity.title }}</a><span>{{ item.opportunity.organization }}</span></div><span class="tag">{{ item.opportunity.get_category_display }}</span></li>{% endfor %}</ul>{% else %}<p class="muted">Save an opportunity to keep it close at hand.</p>{% endif %}
+  </div>
+  <div class="panel"><div class="section-title-row"><div><p class="eyebrow">Mark your calendar</p><h2>Upcoming deadlines</h2></div></div>
+    {% if upcoming_deadlines %}<ul class="compact-list">{% for opportunity in upcoming_deadlines %}<li><div><a class="list-title" href="{% url 'opportunities:detail' opportunity.pk %}">{{ opportunity.title }}</a><span>{{ opportunity.organization }}</span></div><time datetime="{{ opportunity.application_deadline|date:'Y-m-d' }}">{{ opportunity.application_deadline|date:"M j, Y" }}</time></li>{% endfor %}</ul>{% else %}<p class="muted">No upcoming deadlines are listed right now.</p>{% endif %}
+  </div>
+</section>
+<section class="section-block"><div class="section-title-row"><div><p class="eyebrow">Fresh opportunities</p><h2>Recently added</h2></div><a class="text-link" href="{% url 'opportunities:list' %}">Browse all</a></div>
+  {% if recent_opportunities %}<div class="card-grid">{% for opportunity in recent_opportunities %}{% include "opportunities/_card.html" with opportunity=opportunity %}{% endfor %}</div>{% else %}<div class="empty-state"><p>No published opportunities yet. Check back soon.</p></div>{% endif %}
+</section>
+{% endblock %}

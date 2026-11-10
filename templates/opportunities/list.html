@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Explore opportunities — OpenDoors AI{% endblock %}
+{% block content %}
+<div class="page-heading"><p class="eyebrow">Discover what’s next</p><h1>Explore opportunities</h1><p>Search scholarships, internships, jobs, fellowships, and training programs.</p></div>
+<form class="filter-form" method="get" role="search" aria-label="Filter opportunities">
+  <div class="form-field search-field"><label for="{{ form.q.id_for_label }}">Search</label>{{ form.q }}</div>
+  <div class="form-field"><label for="{{ form.category.id_for_label }}">Category</label>{{ form.category }}</div>
+  <div class="form-field"><label for="{{ form.location.id_for_label }}">Location</label>{{ form.location }}</div>
+  <div class="form-field"><label for="{{ form.sort.id_for_label }}">Sort by</label>{{ form.sort }}</div>
+  <button class="button" type="submit">Apply filters</button>
+</form>
+<p class="results-count">{{ page.paginator.count }} opportunity{{ page.paginator.count|pluralize }} found</p>
+{% if page.object_list %}
+  <div class="card-grid">{% for opportunity in page.object_list %}{% include "opportunities/_card.html" with opportunity=opportunity %}{% endfor %}</div>
+  {% if page.has_other_pages %}
+  <nav class="pagination" aria-label="Opportunity pages">
+    {% if page.has_previous %}<a class="button button-secondary" href="?q={{ form.q.value|urlencode }}&category={{ form.category.value|urlencode }}&location={{ form.location.value|urlencode }}&sort={{ form.sort.value|urlencode }}&page={{ page.previous_page_number }}">Previous</a>{% endif %}
+    <span aria-current="page">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}<a class="button button-secondary" href="?q={{ form.q.value|urlencode }}&category={{ form.category.value|urlencode }}&location={{ form.location.value|urlencode }}&sort={{ form.sort.value|urlencode }}&page={{ page.next_page_number }}">Next</a>{% endif %}
+  </nav>
+  {% endif %}
+{% else %}<div class="empty-state"><h2>No matches for these filters</h2><p>Try a different search or clear some filters.</p><a class="text-link" href="{% url 'opportunities:list' %}">Clear filters</a></div>{% endif %}
+{% endblock %}

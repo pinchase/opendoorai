@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Log in — OpenDoors AI{% endblock %}
+{% block content %}
+<section class="form-layout form-layout-single">
+  <div class="form-card"><p class="eyebrow">Welcome back</p><h1>Log in to OpenDoors</h1>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+      {% for field in form %}
+        <div class="form-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</div>
+      {% endfor %}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      <button class="button button-full" type="submit">Log in</button>
+    </form>
+    <p class="form-foot">New to OpenDoors? <a href="{% url 'accounts:register' %}">Create an account</a></p>
+  </div>
+</section>
+{% endblock %}

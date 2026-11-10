@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ opportunity.title }} — OpenDoors AI{% endblock %}
+{% block content %}
+<nav class="breadcrumb" aria-label="Breadcrumb"><a href="{% url 'opportunities:list' %}">Explore</a><span aria-hidden="true">/</span><span>{{ opportunity.get_category_display }}</span></nav>
+<article class="detail-layout">
+  <div class="detail-main">
+    <div class="card-meta"><span class="tag">{{ opportunity.get_category_display }}</span>{% if opportunity.is_demo %}<span class="tag tag-demo">Demonstration data</span>{% endif %}</div>
+    <h1>{{ opportunity.title }}</h1><p class="detail-organization">{{ opportunity.organization }} <span aria-hidden="true">·</span> {{ opportunity.location }}</p>
+    {% if opportunity.is_demo %}<p class="notice">This is demonstration data created for the OpenDoors AI demo. It is not a real listing. No live organization, deadline, or application link is represented.</p>{% endif %}
+    <section class="detail-section"><h2>About this opportunity</h2><p class="preserve-lines">{{ opportunity.description }}</p></section>
+    <section class="detail-section"><h2>Eligibility and requirements</h2>{% if opportunity.eligibility_requirements %}<p class="preserve-lines">{{ opportunity.eligibility_requirements }}</p>{% else %}<p>Specific eligibility requirements have not been provided.</p>{% endif %}
+      <dl class="requirements-list">
+        {% if opportunity.required_education %}<div><dt>Education</dt><dd>{{ opportunity.get_required_education_display }}</dd></div>{% endif %}
+        {% if opportunity.required_field %}<div><dt>Field of study</dt><dd>{{ opportunity.required_field }}</dd></div>{% endif %}
+        {% if opportunity.required_experience %}<div><dt>Experience</dt><dd>{{ opportunity.get_required_experience_display }}</dd></div>{% endif %}
+        {% if opportunity.required_skills %}<div><dt>Skills</dt><dd>{{ opportunity.required_skills|join:", " }}</dd></div>{% endif %}
+      </dl>
+    </section>
+    <section class="detail-section"><h2>How to apply</h2>
+      {% if opportunity.application_url %}<p>Follow the provider’s instructions and confirm the current details before applying.</p><a class="button" href="{{ opportunity.application_url }}" target="_blank" rel="noopener noreferrer">Visit application page <span class="sr-only">(opens in a new tab)</span></a>
+      {% else %}<p>No application link is listed. Contact the opportunity provider for next steps.</p>{% endif %}
+    </section>
+    {% if user.is_authenticated %}
+      <section class="detail-section explanation-section">
+        <h2>Understand your fit</h2>
+        {% if match %}<p>Your profile match is <strong>{{ match.score }}% — {{ match.level }}</strong>. A match score is not an eligibility decision.</p>
+          {% if match.reasons %}<h3>Why it may fit</h3><ul>{% for reason in match.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>{% endif %}
+          {% if match.missing_information %}<h3>Still unknown</h3><ul>{% for item in match.missing_information %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
+          {% if match.eligibility_concerns %}<h3>Eligibility concerns</h3><ul>{% for item in match.eligibility_concerns %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
+        {% endif %}
+        <form method="post">{% csrf_token %}<button class="button button-secondary" type="submit" name="explain" value="1">Explain this opportunity to me</button></form>
+        {% if explanation %}<div class="explanation-result" aria-live="polite"><p class="eyebrow">{% if explanation.source == "rule_based" %}Rule-based explanation{% else %}AI-assisted explanation{% endif %}</p>
+          <p>{{ explanation.summary }}</p>{% if explanation.ai_explanation %}<p class="preserve-lines">{{ explanation.ai_explanation }}</p>{% endif %}
+          <p><strong>Requirements:</strong> {{ explanation.requirements_summary }}</p>
+          {% if explanation.application_steps %}<h3>Next steps</h3><ul>{% for step in explanation.application_steps %}<li>{{ step }}</li>{% endfor %}</ul>{% endif %}
+          <p class="help-text">Use the opportunity provider’s current requirements as the source of truth.</p>
+        </div>{% endif %}
+      </section>
+    {% else %}<div class="notice"><a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}">Log in</a> to see how this opportunity may match your profile and request an explanation.</div>{% endif %}
+  </div>
+  <aside class="detail-aside panel" aria-label="Opportunity summary">
+    <p class="eyebrow">At a glance</p><dl class="summary-list"><div><dt>Location</dt><dd>{{ opportunity.location|default:"Not specified" }}</dd></div><div><dt>Deadline</dt><dd>{% if opportunity.application_deadline %}<time datetime="{{ opportunity.application_deadline|date:'Y-m-d' }}">{{ opportunity.application_deadline|date:"M j, Y" }}</time>{% else %}Not listed{% endif %}</dd></div><div><dt>Type</dt><dd>{{ opportunity.opportunity_type|default:opportunity.get_category_display }}</dd></div></dl>
+    {% if user.is_authenticated %}
+      <form method="post" action="{% url 'opportunities:toggle-saved' opportunity.pk %}">{% csrf_token %}<button class="button button-secondary button-full" type="submit">{% if saved %}Remove saved opportunity{% else %}Save opportunity{% endif %}</button></form>
+      <form method="post" action="{% url 'opportunities:track' opportunity.pk %}">{% csrf_token %}{% if application %}<p class="help-text">In your tracker: {{ application.get_status_display }}</p>{% else %}<button class="button button-full" type="submit">Add to application tracker</button>{% endif %}</form>
+    {% endif %}
+  </aside>
+</article>
+{% endblock %}
